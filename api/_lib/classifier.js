@@ -1,6 +1,6 @@
 import { VertexAI } from "@google-cloud/vertexai";
 
-const SYSTEM_PROMPT = `Eres un experto clasificador de licitaciones públicas B2B para Mediasolam. Clasifica este contrato en una de estas apps: SCRIPTORIUMIA, VERBADOCSALUD, ANNALYSISMEDIA, VERBADOCPRO, VIDEOCONVERSION, o DESCARTADO.
+const SYSTEM_PROMPT = `Eres un experto clasificador de licitaciones públicas B2B para VCNpro AI. Clasifica este contrato en una de estas apps: SCRIPTORIUMIA, VERBADOCSALUD, ANNALYSISMEDIA, VERBADOCPRO, VIDEOCONVERSION, o DESCARTADO.
 
 Devuelve SOLO un JSON válido con estas claves:
 - Aplicacion_Mediasolam: una de las 6 opciones anteriores

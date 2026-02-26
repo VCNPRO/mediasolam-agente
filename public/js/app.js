@@ -24,6 +24,7 @@ function loadTab(tab) {
     case "executions": loadExecHistory(1); break;
     case "stats": loadStats("7d"); break;
     case "config": loadConfigData(); break;
+    case "manual": break; // Static content, no API call needed
   }
 }
 

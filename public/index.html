@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agente Licitaciones — Mediasolam</title>
+  <title>Agente Licitaciones — VCNpro AI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>
@@ -28,9 +28,12 @@
   <!-- Header -->
   <header class="bg-gradient-to-r from-blue-800 to-blue-500 text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
-      <div>
-        <h1 class="text-xl font-bold">Agente Licitaciones</h1>
-        <p class="text-blue-200 text-sm">Mediasolam — Panel de Control</p>
+      <div class="flex items-center gap-4">
+        <img src="/logo-vcnpro.jpg" alt="VCNpro AI" class="h-10 rounded bg-white p-1">
+        <div>
+          <h1 class="text-xl font-bold">Agente Licitaciones</h1>
+          <p class="text-blue-200 text-sm">VCNpro AI — Panel de Control</p>
+        </div>
       </div>
       <div id="header-status" class="text-sm bg-white/20 px-3 py-1 rounded-full">Cargando...</div>
     </div>
@@ -44,6 +47,7 @@
       <button onclick="navigate('executions')" data-tab="executions" class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">Ejecuciones</button>
       <button onclick="navigate('stats')" data-tab="stats" class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">Estadísticas</button>
       <button onclick="navigate('config')" data-tab="config" class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">Configuración</button>
+      <button onclick="navigate('manual')" data-tab="manual" class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">Manual</button>
     </div>
   </nav>
 
@@ -227,11 +231,191 @@
       <p class="mt-3 text-xs text-gray-400">Para guardar, se requiere la clave CRON_SECRET como autorización.</p>
     </section>
 
+    <!-- TAB: Manual -->
+    <section id="tab-manual" class="hidden">
+      <div class="bg-white rounded-xl shadow-sm p-6 md:p-8 max-w-4xl mx-auto prose-sm">
+        <div class="text-center mb-8">
+          <img src="/logo-vcnpro.jpg" alt="VCNpro AI" class="h-16 mx-auto mb-4">
+          <h1 class="text-2xl font-bold text-gray-800">Manual de Funcionamiento</h1>
+          <p class="text-gray-500 mt-1">Agente de Licitaciones v2.0 — VCNpro AI</p>
+        </div>
+
+        <!-- Qué es -->
+        <div class="mb-8">
+          <h2 class="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
+            <span class="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">1</span>
+            ¿Qué es el Agente de Licitaciones?
+          </h2>
+          <p class="text-gray-700 leading-relaxed">
+            Es un sistema automatizado que <strong>escanea licitaciones públicas</strong> del portal de contratación del sector público español,
+            las <strong>clasifica mediante Inteligencia Artificial</strong> (Gemini 2.0 Flash) según su relevancia para los productos de VCNpro AI,
+            y <strong>envía alertas por email</strong> cuando detecta oportunidades de negocio.
+          </p>
+        </div>
+
+        <!-- Cómo funciona -->
+        <div class="mb-8">
+          <h2 class="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
+            <span class="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">2</span>
+            ¿Cómo funciona?
+          </h2>
+          <div class="space-y-3">
+            <div class="flex gap-3 items-start">
+              <span class="bg-gray-100 text-gray-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">A</span>
+              <p class="text-gray-700"><strong>Escaneo automático:</strong> Cada 30 minutos (L-V, 8:00–18:00) el agente descarga los feeds Atom/RSS configurados con las últimas licitaciones publicadas.</p>
+            </div>
+            <div class="flex gap-3 items-start">
+              <span class="bg-gray-100 text-gray-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">B</span>
+              <p class="text-gray-700"><strong>Deduplicación:</strong> Compara cada licitación con las ya procesadas (memoria de 30 días) para evitar repeticiones.</p>
+            </div>
+            <div class="flex gap-3 items-start">
+              <span class="bg-gray-100 text-gray-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">C</span>
+              <p class="text-gray-700"><strong>Clasificación IA:</strong> Las licitaciones nuevas se envían a Gemini 2.0 Flash, que determina la app más adecuada, el nivel de encaje, presupuesto estimado, resumen ejecutivo y ángulo de venta.</p>
+            </div>
+            <div class="flex gap-3 items-start">
+              <span class="bg-gray-100 text-gray-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">D</span>
+              <p class="text-gray-700"><strong>Persistencia:</strong> Todas las oportunidades clasificadas se almacenan en base de datos Redis con índices por app, nivel de encaje y fecha.</p>
+            </div>
+            <div class="flex gap-3 items-start">
+              <span class="bg-gray-100 text-gray-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">E</span>
+              <p class="text-gray-700"><strong>Alertas email:</strong> Si se detectan oportunidades que cumplen los criterios configurados (nivel mínimo de encaje, apps seleccionadas), se envía un email resumen a los destinatarios.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Apps/Productos -->
+        <div class="mb-8">
+          <h2 class="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
+            <span class="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">3</span>
+            Clasificación por Producto
+          </h2>
+          <p class="text-gray-700 mb-3">La IA clasifica cada licitación en uno de estos productos de VCNpro AI:</p>
+          <div class="grid sm:grid-cols-2 gap-2">
+            <div class="border rounded-lg p-3">
+              <span class="badge badge-app">SCRIPTORIUMIA</span>
+              <p class="text-sm text-gray-600 mt-1">Transcripción y actas automatizadas con IA para organismos públicos.</p>
+            </div>
+            <div class="border rounded-lg p-3">
+              <span class="badge badge-app">VERBADOCSALUD</span>
+              <p class="text-sm text-gray-600 mt-1">Documentación clínica por voz para el sector sanitario.</p>
+            </div>
+            <div class="border rounded-lg p-3">
+              <span class="badge badge-app">ANNALYSISMEDIA</span>
+              <p class="text-sm text-gray-600 mt-1">Análisis y monitorización de medios de comunicación.</p>
+            </div>
+            <div class="border rounded-lg p-3">
+              <span class="badge badge-app">VERBADOCPRO</span>
+              <p class="text-sm text-gray-600 mt-1">Dictado y documentación profesional por voz.</p>
+            </div>
+            <div class="border rounded-lg p-3">
+              <span class="badge badge-app">VIDEOCONVERSION</span>
+              <p class="text-sm text-gray-600 mt-1">Digitalización y conversión de archivos audiovisuales.</p>
+            </div>
+            <div class="border rounded-lg p-3">
+              <span class="badge badge-descartado">DESCARTADO</span>
+              <p class="text-sm text-gray-600 mt-1">Licitación sin encaje con ninguno de los productos.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Niveles de encaje -->
+        <div class="mb-8">
+          <h2 class="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
+            <span class="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">4</span>
+            Niveles de Encaje
+          </h2>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
+              <span class="badge badge-alto">ALTO</span>
+              <p class="text-sm text-gray-700">La licitación encaja directamente con un producto. Alta probabilidad de éxito comercial.</p>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+              <span class="badge badge-medio">MEDIO</span>
+              <p class="text-sm text-gray-700">Encaje parcial. Puede requerir adaptación o propuesta combinada.</p>
+            </div>
+            <div class="flex items-center gap-3 p-3 rounded-lg bg-red-50 border border-red-200">
+              <span class="badge badge-bajo">BAJO</span>
+              <p class="text-sm text-gray-700">Encaje limitado. Oportunidad marginal que puede no justificar el esfuerzo.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guía de tabs -->
+        <div class="mb-8">
+          <h2 class="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
+            <span class="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">5</span>
+            Guía del Panel de Control
+          </h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-semibold text-gray-800">Resumen</h3>
+              <p class="text-sm text-gray-600">Vista general con KPIs principales: total de oportunidades, oportunidades de hoy, ratio de relevantes y emails enviados. Incluye la información de la última ejecución, un gráfico de tendencia de 7 días y las 5 oportunidades más recientes.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Oportunidades</h3>
+              <p class="text-sm text-gray-600">Lista completa de oportunidades clasificadas con filtros por app, nivel de encaje, rango de fechas y búsqueda de texto libre. Haz clic en una fila para expandir y ver el resumen ejecutivo y ángulo de venta.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Ejecuciones</h3>
+              <p class="text-sm text-gray-600">Historial de todas las ejecuciones del agente. Muestra fecha/hora, feed procesado, items encontrados, clasificados, relevantes, si se envió email, duración y errores. Las filas con errores aparecen en rojo.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Estadísticas</h3>
+              <p class="text-sm text-gray-600">Gráficos de evolución temporal (7, 30 o 90 días), distribución por producto (doughnut) y distribución por nivel de encaje (barras). Permite analizar tendencias y la composición del pipeline de oportunidades.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Configuración</h3>
+              <p class="text-sm text-gray-600">Gestión de feeds RSS/Atom (añadir, editar, activar/desactivar) y configuración de alertas por email (nivel mínimo de encaje, productos a rastrear, destinatarios). Requiere la clave CRON_SECRET para guardar cambios.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Programación cron -->
+        <div class="mb-8">
+          <h2 class="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
+            <span class="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">6</span>
+            Programación Automática
+          </h2>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-700 mb-2">El agente se ejecuta automáticamente con esta programación:</p>
+            <code class="bg-gray-200 px-2 py-1 rounded text-sm">*/30 8-18 * * 1-5</code>
+            <ul class="text-sm text-gray-600 mt-3 space-y-1 list-disc list-inside">
+              <li>Cada <strong>30 minutos</strong></li>
+              <li>De <strong>8:00 a 18:00</strong> horas</li>
+              <li>De <strong>lunes a viernes</strong></li>
+              <li>Cada ejecución procesa hasta <strong>150 items</strong> por feed</li>
+              <li>Clasifica un máximo de <strong>30 nuevos</strong> por feed y ejecución</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Stack técnico -->
+        <div class="mb-4">
+          <h2 class="text-lg font-bold text-blue-800 mb-3 flex items-center gap-2">
+            <span class="w-7 h-7 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold">7</span>
+            Stack Técnico
+          </h2>
+          <div class="grid sm:grid-cols-2 gap-2 text-sm">
+            <div class="bg-gray-50 rounded p-3"><strong>Hosting:</strong> Vercel (Serverless Functions)</div>
+            <div class="bg-gray-50 rounded p-3"><strong>Base de datos:</strong> Vercel KV (Upstash Redis)</div>
+            <div class="bg-gray-50 rounded p-3"><strong>IA:</strong> Google Vertex AI — Gemini 2.0 Flash</div>
+            <div class="bg-gray-50 rounded p-3"><strong>Email:</strong> Nodemailer (SMTP)</div>
+            <div class="bg-gray-50 rounded p-3"><strong>Feed:</strong> Contratación Sector Público (Atom)</div>
+            <div class="bg-gray-50 rounded p-3"><strong>Frontend:</strong> Vanilla JS + Tailwind + Chart.js</div>
+          </div>
+        </div>
+
+        <div class="text-center mt-8 pt-6 border-t">
+          <p class="text-xs text-gray-400">VCNpro AI — Agente de Licitaciones v2.0</p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- Footer -->
   <footer class="text-center py-6 text-xs text-gray-400">
-    Agente Licitaciones v2.0 — Mediasolam
+    Agente Licitaciones v2.0 — VCNpro AI
   </footer>
 
   <script src="/js/app.js"></script>

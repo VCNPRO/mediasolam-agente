@@ -54,7 +54,7 @@ export function buildEmailHtml(oportunidades) {
         <tbody>${rows}</tbody>
       </table>
       <div style="padding:24px;text-align:center;background:#f9fafb;border-top:1px solid #e5e7eb;">
-        <p style="margin:0;font-size:12px;color:#9ca3af;">Generado automáticamente por <strong>Agente Licitaciones</strong> · Mediasolam</p>
+        <p style="margin:0;font-size:12px;color:#9ca3af;">Generado automáticamente por <strong>Agente Licitaciones</strong> · VCNpro AI</p>
       </div>
     </div>
   </body>
@@ -84,7 +84,7 @@ export async function sendEmail(oportunidades, recipients) {
   await transporter.sendMail({
     from: `"Agente Licitaciones" <${process.env.SMTP_USER}>`,
     to,
-    subject: `[Mediasolam] ${oportunidades.length} nueva${oportunidades.length > 1 ? "s" : ""} licitacion${oportunidades.length > 1 ? "es" : ""}`,
+    subject: `[VCNpro AI] ${oportunidades.length} nueva${oportunidades.length > 1 ? "s" : ""} licitacion${oportunidades.length > 1 ? "es" : ""}`,
     html: buildEmailHtml(oportunidades),
   });
 
