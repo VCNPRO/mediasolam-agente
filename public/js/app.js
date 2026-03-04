@@ -560,10 +560,36 @@ async function deleteExec(index) {
 }
 
 async function purgeAllOpps() {
-  if (!confirm("¿Eliminar TODAS las oportunidades? Esta acción no se puede deshacer.")) return;
+  // Build filter params matching the current view
+  const app = document.getElementById("filter-app").value;
+  const encaje = document.getElementById("filter-encaje").value;
+  const from = document.getElementById("filter-from").value;
+  const to = document.getElementById("filter-to").value;
+  const search = document.getElementById("filter-search").value;
+
+  const hasFilters = app || encaje || from || to || search;
+  const parts = [];
+  if (app) parts.push(`App: ${app}`);
+  if (encaje) parts.push(`Encaje: ${encaje}`);
+  if (from) parts.push(`Desde: ${from}`);
+  if (to) parts.push(`Hasta: ${to}`);
+  if (search) parts.push(`Búsqueda: "${search}"`);
+  const filterDesc = hasFilters ? `con filtros (${parts.join(", ")})` : "TODAS sin excepción";
+
+  if (!confirm(`¿Eliminar las oportunidades ${filterDesc}?\nEsta acción no se puede deshacer.`)) return;
+
+  const params = new URLSearchParams({ purge: hasFilters ? "filtered" : "all" });
+  if (app) params.set("app", app);
+  if (encaje) params.set("encaje", encaje);
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  if (search) params.set("search", search);
+
   try {
-    const resp = await fetch("/api/opportunities?purge=all", { method: "DELETE" });
+    const resp = await fetch(`/api/opportunities?${params}`, { method: "DELETE" });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    alert(`Eliminadas ${data.count} oportunidades.`);
     loadOpportunities(1);
   } catch (e) {
     alert("Error al purgar: " + e.message);
