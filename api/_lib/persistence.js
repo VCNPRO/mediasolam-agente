@@ -110,6 +110,25 @@ export async function deleteOpportunity(id, oppData) {
   await pipe.exec();
 }
 
+export async function purgeAllOpportunities() {
+  // Get all opportunity IDs from the main index
+  const allIds = await kv.zrange(keys.idxAll(), 0, -1);
+  if (!allIds || allIds.length === 0) return 0;
+
+  // Delete all opp data keys + all indexes
+  const pipe = kv.pipeline();
+  for (const id of allIds) {
+    pipe.del(keys.opp(id));
+  }
+  // Clear all indexes
+  pipe.del(keys.idxAll());
+  for (const app of APPS) pipe.del(keys.idxApp(app));
+  for (const enc of ENCAJE_LEVELS) pipe.del(keys.idxEncaje(enc));
+  await pipe.exec();
+
+  return allIds.length;
+}
+
 export async function deleteExecutionByIndex(index) {
   // Get the entry at this index
   const entries = await kv.lrange(keys.execLog(), index, index);

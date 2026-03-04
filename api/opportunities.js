@@ -1,12 +1,17 @@
 import { kv } from "@vercel/kv";
 import { keys } from "./_lib/kv-schema.js";
-import { deleteOpportunity } from "./_lib/persistence.js";
+import { deleteOpportunity, purgeAllOpportunities } from "./_lib/persistence.js";
 
 export default async function handler(req, res) {
-  // DELETE: remove a specific opportunity
+  // DELETE: remove opportunity(ies)
   if (req.method === "DELETE") {
     try {
       const url = new URL(req.url, `http://${req.headers.host}`);
+      const purge = url.searchParams.get("purge");
+      if (purge === "all") {
+        const count = await purgeAllOpportunities();
+        return res.status(200).json({ purged: true, count });
+      }
       const id = url.searchParams.get("id");
       if (!id) return res.status(400).json({ error: "Missing id" });
 

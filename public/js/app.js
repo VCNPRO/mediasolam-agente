@@ -559,6 +559,17 @@ async function deleteExec(index) {
   }
 }
 
+async function purgeAllOpps() {
+  if (!confirm("¿Eliminar TODAS las oportunidades? Esta acción no se puede deshacer.")) return;
+  try {
+    const resp = await fetch("/api/opportunities?purge=all", { method: "DELETE" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    loadOpportunities(1);
+  } catch (e) {
+    alert("Error al purgar: " + e.message);
+  }
+}
+
 async function purgeAllExecs() {
   if (!confirm("¿Eliminar TODO el historial de ejecuciones? Esta acción no se puede deshacer.")) return;
   try {
@@ -581,4 +592,5 @@ window.removeFeed = removeFeed;
 window.saveConfig = saveConfig;
 window.deleteOpp = deleteOpp;
 window.deleteExec = deleteExec;
+window.purgeAllOpps = purgeAllOpps;
 window.purgeAllExecs = purgeAllExecs;
