@@ -13,13 +13,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      // Auth required for writes
-      const authHeader = req.headers["authorization"];
-      const expected = `Bearer ${process.env.CRON_SECRET}`;
-      if (!authHeader || authHeader !== expected) {
-        return res.status(401).json({ error: "No autorizado" });
-      }
-
+      // Auth temporarily disabled
       const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
       if (body.feeds) {

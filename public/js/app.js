@@ -415,29 +415,12 @@ async function saveConfig() {
     emailTo,
   };
 
-  // Auth token prompt
-  let token = sessionStorage.getItem("config_token");
-  if (!token) {
-    token = prompt("Introduce el CRON_SECRET para guardar:");
-    if (!token) { statusEl.textContent = "Cancelado"; return; }
-    sessionStorage.setItem("config_token", token);
-  }
-
   try {
     const resp = await fetch("/api/config", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ feeds, alerts }),
     });
-
-    if (resp.status === 401) {
-      sessionStorage.removeItem("config_token");
-      statusEl.textContent = "Error: clave incorrecta";
-      return;
-    }
 
     const data = await resp.json();
     statusEl.textContent = data.saved ? "Guardado correctamente" : "Error al guardar";
