@@ -66,6 +66,7 @@ export const DEFAULT_FEEDS = [
 export const DEFAULT_ALERTS = {
   enabled: true,
   minEncaje: "BAJO",
+  emailFrequency: "cada_ejecucion", // "cada_ejecucion" | "max_diario" | "nunca"
   apps: APPS.filter((a) => a !== "DESCARTADO"),
   emailTo: []
 };

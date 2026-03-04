@@ -169,9 +169,10 @@ async function loadOpportunities(page) {
           <td class="px-4 py-3 text-center">${encajeBadge(o.Nivel_de_Encaje)}</td>
           <td class="px-4 py-3 text-right font-medium">${escHtml(o.Presupuesto_Estimado || "—")}</td>
           <td class="px-4 py-3 text-center text-gray-500">${escHtml(o.fechaStr || "—")}</td>
+          <td class="px-4 py-3 text-center"><button onclick="event.stopPropagation(); deleteOpp('${escAttr(o.id)}')" class="text-red-400 hover:text-red-600 transition" title="Eliminar"><svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></td>
         </tr>
         <tr class="expand-row bg-gray-50">
-          <td colspan="5" class="px-4 py-3">
+          <td colspan="6" class="px-4 py-3">
             ${o.organismo ? `<p class="text-xs text-gray-500 font-semibold mb-1">Organismo</p><p class="text-sm text-gray-700 mb-2">${escHtml(o.organismo)}</p>` : ""}
             ${o.cpvCodes && o.cpvCodes.length > 0 ? `<p class="text-xs text-gray-500 font-semibold mb-1">CPV</p><p class="text-sm text-gray-700 mb-2">${o.cpvCodes.map(c => `<span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded mr-1 mb-1">${escHtml(c)}</span>`).join("")}</p>` : ""}
             <p class="text-xs text-gray-500 font-semibold mb-1">Resumen Ejecutivo</p>
@@ -181,7 +182,7 @@ async function loadOpportunities(page) {
           </td>
         </tr>`).join("");
     } else {
-      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">Sin resultados</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">Sin resultados</td></tr>`;
     }
 
     renderPagination("opps-pagination", data.page, data.pages, data.total, "loadOpportunities");
@@ -205,9 +206,11 @@ async function loadExecHistory(page) {
     const tbody = document.getElementById("exec-tbody");
 
     if (data.items && data.items.length > 0) {
-      tbody.innerHTML = data.items.map((e) => {
+      const startIdx = (data.page - 1) * 20;
+      tbody.innerHTML = data.items.map((e, i) => {
         const hasErrors = e.errors && e.errors.length > 0;
         const feedNames = (e.feeds || []).map((f) => f.name || f.id).join(", ") || "—";
+        const globalIdx = startIdx + i;
         return `
         <tr class="border-b ${hasErrors ? "bg-red-50" : "hover:bg-gray-50"}">
           <td class="px-4 py-3">${formatDate(e.timestamp)}</td>
@@ -218,10 +221,11 @@ async function loadExecHistory(page) {
           <td class="px-4 py-3 text-center">${e.emailSent ? '<span class="text-green-600">Si</span>' : '<span class="text-gray-400">No</span>'}</td>
           <td class="px-4 py-3 text-right">${e.durationMs ? (e.durationMs / 1000).toFixed(1) + "s" : "—"}</td>
           <td class="px-4 py-3 text-center">${hasErrors ? `<span class="text-red-600 font-medium">${e.errors.length}</span>` : '<span class="text-gray-400">0</span>'}</td>
+          <td class="px-4 py-3 text-center"><button onclick="deleteExec(${globalIdx})" class="text-red-400 hover:text-red-600 transition" title="Eliminar"><svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></td>
         </tr>`;
       }).join("");
     } else {
-      tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-6 text-center text-gray-400">Sin ejecuciones registradas</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-6 text-center text-gray-400">Sin ejecuciones registradas</td></tr>`;
     }
 
     renderPagination("exec-pagination", data.page, data.pages, data.total, "loadExecHistory");
@@ -350,6 +354,7 @@ async function loadConfigData() {
     // Alerts
     const alerts = data.alerts || {};
     document.getElementById("cfg-alerts-enabled").checked = alerts.enabled !== false;
+    document.getElementById("cfg-email-frequency").value = alerts.emailFrequency || "cada_ejecucion";
     document.getElementById("cfg-min-encaje").value = alerts.minEncaje || "BAJO";
     document.getElementById("cfg-email-to").value = (alerts.emailTo || []).join("\n");
 
@@ -482,6 +487,7 @@ async function saveConfig() {
 
   const alerts = {
     enabled: document.getElementById("cfg-alerts-enabled").checked,
+    emailFrequency: document.getElementById("cfg-email-frequency").value,
     minEncaje: document.getElementById("cfg-min-encaje").value,
     apps,
     emailTo,
@@ -530,6 +536,40 @@ function escAttr(str) {
   return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// ── Delete functions ──
+async function deleteOpp(id) {
+  if (!confirm("¿Eliminar esta oportunidad?")) return;
+  try {
+    const resp = await fetch(`/api/opportunities?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    loadOpportunities(oppsPage);
+  } catch (e) {
+    alert("Error al eliminar: " + e.message);
+  }
+}
+
+async function deleteExec(index) {
+  if (!confirm("¿Eliminar este registro de ejecución?")) return;
+  try {
+    const resp = await fetch(`/api/executions?index=${index}`, { method: "DELETE" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    loadExecHistory(execPage);
+  } catch (e) {
+    alert("Error al eliminar: " + e.message);
+  }
+}
+
+async function purgeAllExecs() {
+  if (!confirm("¿Eliminar TODO el historial de ejecuciones? Esta acción no se puede deshacer.")) return;
+  try {
+    const resp = await fetch("/api/executions?purge=all", { method: "DELETE" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    loadExecHistory(1);
+  } catch (e) {
+    alert("Error al purgar: " + e.message);
+  }
+}
+
 // Expose functions to global scope for onclick handlers
 window.navigate = navigate;
 window.loadOpportunities = loadOpportunities;
@@ -539,3 +579,6 @@ window.toggleExpand = toggleExpand;
 window.addFeed = addFeed;
 window.removeFeed = removeFeed;
 window.saveConfig = saveConfig;
+window.deleteOpp = deleteOpp;
+window.deleteExec = deleteExec;
+window.purgeAllExecs = purgeAllExecs;

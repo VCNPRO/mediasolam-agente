@@ -92,6 +92,43 @@ export async function cleanupOldIndexes() {
   await pipe.exec();
 }
 
+export async function deleteOpportunity(id, oppData) {
+  const pipe = kv.pipeline();
+  // Remove main data
+  pipe.del(keys.opp(id));
+  // Remove from all indexes
+  pipe.zrem(keys.idxAll(), id);
+  if (oppData) {
+    if (oppData.Aplicacion_Mediasolam) pipe.zrem(keys.idxApp(oppData.Aplicacion_Mediasolam), id);
+    if (oppData.Nivel_de_Encaje) pipe.zrem(keys.idxEncaje(normalizeEncaje(oppData.Nivel_de_Encaje)), id);
+    if (oppData.fechaStr) pipe.zrem(keys.idxDay(oppData.fechaStr), id);
+  } else {
+    // Remove from all possible app/encaje indexes
+    for (const app of APPS) pipe.zrem(keys.idxApp(app), id);
+    for (const enc of ENCAJE_LEVELS) pipe.zrem(keys.idxEncaje(enc), id);
+  }
+  await pipe.exec();
+}
+
+export async function deleteExecutionByIndex(index) {
+  // Get the entry at this index
+  const entries = await kv.lrange(keys.execLog(), index, index);
+  if (entries && entries.length > 0) {
+    const entry = entries[0];
+    // LREM removes by value (count=1 = first occurrence)
+    await kv.lrem(keys.execLog(), 1, entry);
+    return true;
+  }
+  return false;
+}
+
+export async function purgeAllExecutions() {
+  const pipe = kv.pipeline();
+  pipe.del(keys.execLog());
+  pipe.del(keys.execLatest());
+  await pipe.exec();
+}
+
 export async function loadConfig(configKey, defaults) {
   const val = await kv.get(configKey);
   if (val) return typeof val === "string" ? JSON.parse(val) : val;

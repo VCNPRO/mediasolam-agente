@@ -1,7 +1,27 @@
 import { kv } from "@vercel/kv";
 import { keys } from "./_lib/kv-schema.js";
+import { deleteExecutionByIndex, purgeAllExecutions } from "./_lib/persistence.js";
 
 export default async function handler(req, res) {
+  // DELETE: remove execution(s)
+  if (req.method === "DELETE") {
+    try {
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const purge = url.searchParams.get("purge");
+      if (purge === "all") {
+        await purgeAllExecutions();
+        return res.status(200).json({ purged: true });
+      }
+      const index = parseInt(url.searchParams.get("index"), 10);
+      if (isNaN(index)) return res.status(400).json({ error: "Missing index" });
+      const ok = await deleteExecutionByIndex(index);
+      return res.status(200).json({ deleted: ok });
+    } catch (error) {
+      console.error("Error delete execution:", error);
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
   try {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));

@@ -139,7 +139,7 @@
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead><tr class="bg-gray-50 text-left text-xs text-gray-500 uppercase">
-              <th class="px-4 py-3">Título</th><th class="px-4 py-3">App</th><th class="px-4 py-3 text-center">Encaje</th><th class="px-4 py-3 text-right">Presupuesto</th><th class="px-4 py-3 text-center">Fecha</th>
+              <th class="px-4 py-3">Título</th><th class="px-4 py-3">App</th><th class="px-4 py-3 text-center">Encaje</th><th class="px-4 py-3 text-right">Presupuesto</th><th class="px-4 py-3 text-center">Fecha</th><th class="px-4 py-3 w-10"></th>
             </tr></thead>
             <tbody id="opps-tbody"></tbody>
           </table>
@@ -150,11 +150,14 @@
 
     <!-- TAB: Executions -->
     <section id="tab-executions" class="hidden">
+      <div class="flex justify-end mb-3">
+        <button onclick="purgeAllExecs()" class="text-xs text-red-500 hover:text-red-700 font-medium px-3 py-1.5 border border-red-200 rounded hover:bg-red-50 transition">Purgar todo el historial</button>
+      </div>
       <div class="bg-white rounded-xl shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead><tr class="bg-gray-50 text-left text-xs text-gray-500 uppercase">
-              <th class="px-4 py-3">Fecha/Hora</th><th class="px-4 py-3">Feed</th><th class="px-4 py-3 text-center">Procesados</th><th class="px-4 py-3 text-center">Nuevos</th><th class="px-4 py-3 text-center">Relevantes</th><th class="px-4 py-3 text-center">Email</th><th class="px-4 py-3 text-right">Duración</th><th class="px-4 py-3 text-center">Errores</th>
+              <th class="px-4 py-3">Fecha/Hora</th><th class="px-4 py-3">Feed</th><th class="px-4 py-3 text-center">Procesados</th><th class="px-4 py-3 text-center">Nuevos</th><th class="px-4 py-3 text-center">Relevantes</th><th class="px-4 py-3 text-center">Email</th><th class="px-4 py-3 text-right">Duración</th><th class="px-4 py-3 text-center">Errores</th><th class="px-4 py-3 w-10"></th>
             </tr></thead>
             <tbody id="exec-tbody"></tbody>
           </table>
@@ -208,7 +211,15 @@
               <span class="text-sm">Alertas activadas</span>
             </label>
             <div>
-              <label class="text-xs text-gray-500 block mb-1">Encaje mínimo</label>
+              <label class="text-xs text-gray-500 block mb-1">Frecuencia de envío</label>
+              <select id="cfg-email-frequency" class="border rounded px-3 py-1.5 text-sm w-full">
+                <option value="cada_ejecucion">Cada ejecución (si hay resultados)</option>
+                <option value="max_diario">Máximo 1 email al día (resumen)</option>
+                <option value="nunca">Nunca (desactivar emails)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 block mb-1">Encaje mínimo para alertar</label>
               <select id="cfg-min-encaje" class="border rounded px-3 py-1.5 text-sm w-full">
                 <option value="BAJO">BAJO (todas)</option><option value="MEDIO">MEDIO y ALTO</option><option value="ALTO">Solo ALTO</option>
               </select>
@@ -218,8 +229,9 @@
               <div id="cfg-apps" class="space-y-1"></div>
             </div>
             <div>
-              <label class="text-xs text-gray-500 block mb-1">Destinatarios (uno por línea)</label>
-              <textarea id="cfg-email-to" rows="3" class="border rounded px-3 py-1.5 text-sm w-full" placeholder="email@ejemplo.com"></textarea>
+              <label class="text-xs text-gray-500 block mb-1">Destinatarios email (uno por línea)</label>
+              <textarea id="cfg-email-to" rows="3" class="border rounded px-3 py-1.5 text-sm w-full" placeholder="nombre@empresa.com&#10;otro@empresa.com"></textarea>
+              <p class="text-xs text-gray-400 mt-1">Si está vacío, se usa la variable de entorno EMAIL_TO</p>
             </div>
           </div>
         </div>

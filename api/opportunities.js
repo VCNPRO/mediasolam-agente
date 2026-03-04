@@ -1,7 +1,26 @@
 import { kv } from "@vercel/kv";
 import { keys } from "./_lib/kv-schema.js";
+import { deleteOpportunity } from "./_lib/persistence.js";
 
 export default async function handler(req, res) {
+  // DELETE: remove a specific opportunity
+  if (req.method === "DELETE") {
+    try {
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const id = url.searchParams.get("id");
+      if (!id) return res.status(400).json({ error: "Missing id" });
+
+      // Load opportunity data for index cleanup
+      const raw = await kv.get(keys.opp(id));
+      const oppData = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : null;
+      await deleteOpportunity(id, oppData);
+      return res.status(200).json({ deleted: true, id });
+    } catch (error) {
+      console.error("Error delete opportunity:", error);
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
   try {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));

@@ -34,6 +34,9 @@ export default async function handler(req, res) {
           minEncaje: ["ALTO", "MEDIO", "BAJO"].includes(body.alerts.minEncaje)
             ? body.alerts.minEncaje
             : "BAJO",
+          emailFrequency: ["cada_ejecucion", "max_diario", "nunca"].includes(body.alerts.emailFrequency)
+            ? body.alerts.emailFrequency
+            : "cada_ejecucion",
           apps: Array.isArray(body.alerts.apps) ? body.alerts.apps : [],
           emailTo: Array.isArray(body.alerts.emailTo) ? body.alerts.emailTo : [],
         };

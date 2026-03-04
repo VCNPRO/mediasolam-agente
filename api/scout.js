@@ -188,27 +188,44 @@ export default async function handler(req, res) {
     logEntry.totalRelevant = relevant.length;
     logEntry.totalDescartado = descartado.length;
 
-    // Send email based on alert config
-    if (alertsConfig.enabled && relevant.length > 0) {
-      const encajeOrder = { ALTO: 3, MEDIO: 2, BAJO: 1 };
-      const minLevel = encajeOrder[alertsConfig.minEncaje] || 1;
-      const allowedApps = new Set(alertsConfig.apps || []);
+    // Send email based on alert config and frequency
+    const emailFreq = alertsConfig.emailFrequency || "cada_ejecucion";
+    if (alertsConfig.enabled && emailFreq !== "nunca" && relevant.length > 0) {
+      // Check frequency: if "max_diario", skip if already sent today
+      let shouldSend = true;
+      if (emailFreq === "max_diario") {
+        const lastEmailKey = "email:last_sent_date";
+        const lastDate = await kv.get(lastEmailKey);
+        if (lastDate === today) {
+          shouldSend = false;
+        }
+      }
 
-      const toEmail = relevant.filter((o) => {
-        const level = encajeOrder[o.Nivel_de_Encaje] || 1;
-        return level >= minLevel && allowedApps.has(o.Aplicacion_Mediasolam);
-      });
+      if (shouldSend) {
+        const encajeOrder = { ALTO: 3, MEDIO: 2, BAJO: 1 };
+        const minLevel = encajeOrder[alertsConfig.minEncaje] || 1;
+        const allowedApps = new Set(alertsConfig.apps || []);
 
-      if (toEmail.length > 0) {
-        try {
-          const recipients =
-            alertsConfig.emailTo && alertsConfig.emailTo.length > 0
-              ? alertsConfig.emailTo
-              : null;
-          const sent = await sendEmail(toEmail, recipients);
-          logEntry.emailSent = sent;
-        } catch (emailErr) {
-          logEntry.errors.push(`Email: ${emailErr.message}`);
+        const toEmail = relevant.filter((o) => {
+          const level = encajeOrder[o.Nivel_de_Encaje] || 1;
+          return level >= minLevel && allowedApps.has(o.Aplicacion_Mediasolam);
+        });
+
+        if (toEmail.length > 0) {
+          try {
+            const recipients =
+              alertsConfig.emailTo && alertsConfig.emailTo.length > 0
+                ? alertsConfig.emailTo
+                : null;
+            const sent = await sendEmail(toEmail, recipients);
+            logEntry.emailSent = sent;
+            // Record send date for frequency check
+            if (sent) {
+              await kv.set("email:last_sent_date", today, { ex: 86400 });
+            }
+          } catch (emailErr) {
+            logEntry.errors.push(`Email: ${emailErr.message}`);
+          }
         }
       }
     }
